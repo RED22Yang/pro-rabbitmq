@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:rabbit="http://www.springframework.org/schema/rabbit"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/rabbit http://www.springframework.org/schema/rabbit/spring-rabbit.xsd http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd">
+
+    <context:component-scan base-package="com.atguigu.listener"/>
+
+    <rabbit:connection-factory id="factory"
+        host="192.168.121.128"
+        port="5672"
+        username="admin"
+        password="admin"
+        virtual-host="myhost"
+    />
+    
+    <rabbit:listener-container connection-factory="factory">
+            <!-- simple-->
+        <rabbit:listener ref="consumerListener" queue-names="spring_simple_queue"/>
+
+            <!-- work-->
+        <rabbit:listener ref="consumerListener1" queue-names="spring_work_queue"/>
+        <rabbit:listener ref="consumerListener2" queue-names="spring_work_queue"/>
+
+            <!-- fanout-->
+        <rabbit:listener ref="consumerListener3" queue-names="spring_fanout_queue1"/>
+        <rabbit:listener ref="consumerListener4" queue-names="spring_fanout_queue2"/>
+
+            <!-- routing-->
+        <rabbit:listener ref="consumerListener5" queue-names="spring_direct_queue1"/>
+        <rabbit:listener ref="consumerListener6" queue-names="spring_direct_queue2"/>
+
+            <!-- topic-->
+        <rabbit:listener ref="consumerListener7" queue-names="spring_topic_queue1"/>
+        <rabbit:listener ref="consumerListener8" queue-names="spring_topic_queue2"/>
+
+    </rabbit:listener-container>
+
+
+</beans>

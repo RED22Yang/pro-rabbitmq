@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:rabbit="http://www.springframework.org/schema/rabbit"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/rabbit http://www.springframework.org/schema/rabbit/spring-rabbit.xsd">
+
+    <rabbit:connection-factory id="factory"
+            host="192.168.121.128"
+            port="5672"
+            username="admin"
+            password="admin"
+            virtual-host="myhost"
+    />
+
+    <rabbit:admin connection-factory="factory"/>
+
+
+    <!-- 简单模式 -->
+    <rabbit:queue id="spring_simple_queue" name="spring_simple_queue" durable="true" auto-declare="true" auto-delete="false" exclusive="false"/>
+
+    <!-- 工作模式-->
+    <rabbit:queue id="spring_work_queue" name="spring_work_queue" durable="true" auto-delete="false" auto-declare="true" exclusive="false"/>
+
+    <!-- fanout模式-->
+    <rabbit:queue id="spring_fanout_queue1" name="spring_fanout_queue1" durable="true" auto-delete="false" auto-declare="true" exclusive="false"/>
+    <rabbit:queue id="spring_fanout_queue2" name="spring_fanout_queue2" durable="true" auto-delete="false" auto-declare="true" exclusive="false"/>
+    <rabbit:fanout-exchange name="spring_fanout_exchange" auto-declare="true" auto-delete="false" durable="true">
+        <rabbit:bindings>
+            <rabbit:binding queue="spring_fanout_queue1"/>
+            <rabbit:binding queue="spring_fanout_queue2"/>
+        </rabbit:bindings>
+    </rabbit:fanout-exchange>
+
+    <!-- routing-->
+    <rabbit:queue id="spring_direct_queue1" name="spring_direct_queue1" durable="true" auto-delete="false" auto-declare="true" exclusive="false"/>
+    <rabbit:queue id="spring_direct_queue2" name="spring_direct_queue2" durable="true" auto-delete="false" auto-declare="true" exclusive="false"/>
+    <rabbit:direct-exchange name="spring_direct_exchange" auto-declare="true" auto-delete="false" durable="true">
+        <rabbit:bindings>
+            <rabbit:binding queue="spring_direct_queue1" key="a"/>
+            <rabbit:binding queue="spring_direct_queue2" key="b"/>
+        </rabbit:bindings>
+    </rabbit:direct-exchange>
+
+    <!-- topic-->
+    <rabbit:queue id="spring_topic_queue1" name="spring_topic_queue1" durable="true" auto-delete="false" auto-declare="true" exclusive="false"/>
+    <rabbit:queue id="spring_topic_queue2" name="spring_topic_queue2" durable="true" auto-delete="false" auto-declare="true" exclusive="false"/>
+    <rabbit:topic-exchange name="spring_topic_exchange" auto-declare="true" auto-delete="false" durable="true">
+        <rabbit:bindings>
+            <rabbit:binding pattern="#.abc.#" queue="spring_topic_queue1"/>
+            <rabbit:binding pattern="*.abc.*" queue="spring_topic_queue2"/>
+        </rabbit:bindings>
+    </rabbit:topic-exchange>
+
+    <rabbit:template id="rabbitTemplate" connection-factory="factory"/>
+
+
+
+</beans>
