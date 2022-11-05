@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:rabbit="http://www.springframework.org/schema/rabbit"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/rabbit http://www.springframework.org/schema/rabbit/spring-rabbit.xsd">
+
+    <rabbit:connection-factory id="factory"
+            host="192.168.121.128"
+            port="5672"
+            username="admin"
+            password="admin"
+            publisher-confirms="true"
+            publisher-returns="true"
+            virtual-host="myhost"/>
+
+    <rabbit:admin connection-factory="factory"/>
+
+    <rabbit:queue id="spring_confirm_queue" name="spring_confirm_queue" auto-delete="false" durable="true" exclusive="false" auto-declare="true"/>
+
+    <rabbit:queue id="spring_ttl_queue" name="spring_ttl_queue" exclusive="false" durable="true" auto-delete="false" auto-declare="true" >
+        <rabbit:queue-arguments>
+            <entry key="x-message-ttl" value="10000" value-type="java.lang.Integer"/>
+        </rabbit:queue-arguments>
+    </rabbit:queue>
+
+    <rabbit:queue id="spring_dlx_queue" name="spring_dlx_queue" durable="true" auto-delete="false" auto-declare="true" exclusive="false">
+        <rabbit:queue-arguments>
+            <entry key="x-dead-letter-exchange" value="dlx_exchange"/>
+            <entry key="x-dead-letter-routing-key" value="dlx.dlx" />
+            <entry key="x-message-ttl" value="15000" value-type="java.lang.Integer" />
+            <entry key="x-max-length" value="10" value-type="java.lang.Integer" />
+        </rabbit:queue-arguments>
+    </rabbit:queue>
+
+    <rabbit:queue id="dlx_queue" name="dlx_queue" exclusive="false" auto-declare="true" auto-delete="false" durable="true">
+        <rabbit:queue-arguments>
+            <entry key="x-message-ttl" value="20000" value-type="java.lang.Integer" />
+        </rabbit:queue-arguments>
+    </rabbit:queue>
+
+    <rabbit:direct-exchange name="spring_confirm_exchange" auto-declare="true">
+        <rabbit:bindings>
+            <rabbit:binding queue="spring_confirm_queue" key="confirm"/>
+        </rabbit:bindings>
+    </rabbit:direct-exchange>
+
+    <rabbit:direct-exchange name="spring_ttl_exchange" auto-declare="true" auto-delete="false" durable="true">
+        <rabbit:bindings>
+            <rabbit:binding queue="spring_ttl_queue" key="ttl" />
+        </rabbit:bindings>
+    </rabbit:direct-exchange>
+
+    <rabbit:direct-exchange name="spring_dlx_exchange" auto-declare="true" auto-delete="false" durable="true">
+        <rabbit:bindings>
+            <rabbit:binding queue="spring_dlx_queue" key="dlx"/>
+        </rabbit:bindings>
+    </rabbit:direct-exchange>
+
+    <rabbit:topic-exchange name="dlx_exchange" durable="true" auto-delete="false" auto-declare="true">
+        <rabbit:bindings>
+            <rabbit:binding pattern="dlx.#" queue="dlx_queue"/>
+        </rabbit:bindings>
+    </rabbit:topic-exchange>
+
+    <rabbit:template id="rabbitTemplate" connection-factory="factory"/>
+</beans>

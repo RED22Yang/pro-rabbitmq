@@ -13,6 +13,8 @@
         <module>pro-rabbitmq-producer</module>
         <module>spring-rabbitmq-producer</module>
         <module>spring-rabbitmq-consumer</module>
+        <module>rabbitmq-producer-spring</module>
+        <module>rabbit-consumer-spring</module>
     </modules>
 
     <properties>

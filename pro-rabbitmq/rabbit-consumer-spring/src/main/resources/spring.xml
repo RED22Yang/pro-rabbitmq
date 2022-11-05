@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:rabbit="http://www.springframework.org/schema/rabbit"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/rabbit http://www.springframework.org/schema/rabbit/spring-rabbit.xsd http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd">
+
+    <context:component-scan base-package="com.atguigu.mq.listener"/>
+    
+    <rabbit:connection-factory id="factory"
+        host="192.168.121.128"
+        port="5672"
+        username="admin"
+        password="admin"
+        virtual-host="myhost"
+    />
+
+    <rabbit:admin connection-factory="factory"/>
+
+    <rabbit:listener-container connection-factory="factory" acknowledge="manual" prefetch="1">
+        <rabbit:listener ref="consumerListener" queue-names="spring_confirm_queue"/>
+        <rabbit:listener ref="consumerListener2" queue-names="spring_dlx_queue"/>
+    </rabbit:listener-container>
+
+
+
+</beans>
